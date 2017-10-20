@@ -38,9 +38,14 @@ contract SHA1 {
                 case 1 { mstore(32, or(mload(32), mul(len, 8))) }
 
                 // Expand the 16 32-bit words into 80
-                for { let j := 64 } lt(j, 320) { j := add(j, 12) } {
+                for { let j := 64 } lt(j, 128) { j := add(j, 12) } {
                     let temp := xor(xor(mload(sub(j, 12)), mload(sub(j, 32))), xor(mload(sub(j, 56)), mload(sub(j, 64))))
                     temp := or(and(mul(temp, 2), 0xFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFE), and(div(temp, exp(2, 31)), 0x0000000100000001000000010000000100000001000000010000000100000001))
+                    mstore(j, temp)
+                }
+                for { let j := 128 } lt(j, 320) { j := add(j, 24) } {
+                    let temp := xor(xor(mload(sub(j, 24)), mload(sub(j, 64))), xor(mload(sub(j, 112)), mload(sub(j, 128))))
+                    temp := or(and(mul(temp, 4), 0xFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFC), and(div(temp, exp(2, 30)), 0x0000000300000003000000030000000300000003000000030000000300000003))
                     mstore(j, temp)
                 }
 
