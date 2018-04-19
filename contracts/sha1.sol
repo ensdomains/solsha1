@@ -1,21 +1,15 @@
 pragma solidity ^0.4.17;
 
-contract iSHA1 {
-    function sha1(bytes message) public constant returns(bytes20 ret);
-}
-
-contract SHA1 {
+library SHA1 {
     event Debug(bytes32 x);
 
-    function() public {
+    function sha1(bytes data) internal pure returns(bytes20 ret) {
         assembly {
-            switch div(calldataload(0), exp(2, 224))
-            case 0x1605782b { }
-            default { revert(0, 0) }
-            let data := add(calldataload(4), 4)
+            // Get a safe scratch location
+            let scratch := mload(0x40)
 
             // Get the data length, and point data at the first byte
-            let len := calldataload(data)
+            let len := mload(data)
             data := add(data, 32)
 
             // Find the length after padding
@@ -26,27 +20,32 @@ contract SHA1 {
             let h := 0x6745230100EFCDAB890098BADCFE001032547600C3D2E1F0
 
             for { let i := 0 } lt(i, totallen) { i := add(i, 64) } {
-                // Load 64 bytes of data
-                calldatacopy(0, add(data, i), 64)
+                let word := 0
+                if lt(i, len) { word := mload(add(data, i)) }
+                mstore(scratch, word)
+
+                word := 0
+                if lt(add(i, 32), len) { word := mload(add(add(data, 32), i)) }
+                mstore(add(scratch, 32), word)
 
                 // If we loaded the last byte, store the terminator byte
                 switch lt(sub(len, i), 64)
-                case 1 { mstore8(sub(len, i), 0x80) }
+                case 1 { mstore8(add(scratch, sub(len, i)), 0x80) }
 
                 // If this is the last block, store the length
                 switch eq(i, sub(totallen, 64))
-                case 1 { mstore(32, or(mload(32), mul(len, 8))) }
+                case 1 { mstore(add(scratch, 32), or(mload(add(scratch, 32)), mul(len, 8))) }
 
                 // Expand the 16 32-bit words into 80
                 for { let j := 64 } lt(j, 128) { j := add(j, 12) } {
-                    let temp := xor(xor(mload(sub(j, 12)), mload(sub(j, 32))), xor(mload(sub(j, 56)), mload(sub(j, 64))))
+                    let temp := xor(xor(mload(add(scratch, sub(j, 12))), mload(add(scratch, sub(j, 32)))), xor(mload(add(scratch, sub(j, 56))), mload(add(scratch, sub(j, 64)))))
                     temp := or(and(mul(temp, 2), 0xFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFE), and(div(temp, exp(2, 31)), 0x0000000100000001000000010000000100000001000000010000000100000001))
-                    mstore(j, temp)
+                    mstore(add(scratch, j), temp)
                 }
                 for { let j := 128 } lt(j, 320) { j := add(j, 24) } {
-                    let temp := xor(xor(mload(sub(j, 24)), mload(sub(j, 64))), xor(mload(sub(j, 112)), mload(sub(j, 128))))
+                    let temp := xor(xor(mload(add(scratch, sub(j, 24))), mload(add(scratch, sub(j, 64)))), xor(mload(add(scratch, sub(j, 112))), mload(add(scratch, sub(j, 128)))))
                     temp := or(and(mul(temp, 4), 0xFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFC), and(div(temp, exp(2, 30)), 0x0000000300000003000000030000000300000003000000030000000300000003))
-                    mstore(j, temp)
+                    mstore(add(scratch, j), temp)
                 }
 
                 let x := h
@@ -86,17 +85,14 @@ contract SHA1 {
                     temp := add(f, temp)
                     temp := add(and(x, 0xFFFFFFFF), temp)
                     temp := add(k, temp)
-                    temp := add(div(mload(mul(j, 4)), exp(2, 224)), temp)
+                    temp := add(div(mload(add(scratch, mul(j, 4))), exp(2, 224)), temp)
                     x := or(div(x, exp(2, 40)), mul(temp, exp(2, 160)))
                     x := or(and(x, 0xFFFFFFFF00FFFFFFFF000000000000FFFFFFFF00FFFFFFFF), mul(or(and(div(x, exp(2, 50)), 0xC0000000), and(div(x, exp(2, 82)), 0x3FFFFFFF)), exp(2, 80)))
                 }
 
                 h := and(add(h, x), 0xFFFFFFFF00FFFFFFFF00FFFFFFFF00FFFFFFFF00FFFFFFFF)
             }
-            h := or(or(or(or(and(div(h, exp(2, 32)), 0xFFFFFFFF00000000000000000000000000000000), and(div(h, exp(2, 24)), 0xFFFFFFFF000000000000000000000000)), and(div(h, exp(2, 16)), 0xFFFFFFFF0000000000000000)), and(div(h, exp(2, 8)), 0xFFFFFFFF00000000)), and(h, 0xFFFFFFFF))
-            //log1(0, 0, h)
-            mstore(0, h)
-            return(12, 20)
+            ret := mul(or(or(or(or(and(div(h, exp(2, 32)), 0xFFFFFFFF00000000000000000000000000000000), and(div(h, exp(2, 24)), 0xFFFFFFFF000000000000000000000000)), and(div(h, exp(2, 16)), 0xFFFFFFFF0000000000000000)), and(div(h, exp(2, 8)), 0xFFFFFFFF00000000)), and(h, 0xFFFFFFFF)), exp(256, 12))
         }
     }
 }
