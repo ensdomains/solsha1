@@ -17,8 +17,10 @@ contract('SHA1', function(accounts) {
     });
 
     it("benchmarks sha1", async function() {
-      var cost1 = await (await instance).sha1.estimateGas("");
-      var cost2 = await (await instance).sha1.estimateGas("".padStart(512, 'a'));
-      console.log("Base cost: " + cost1 + " gas. Per 64 byte block: " + ((cost2 - cost1) / 8) + " gas");
+      var cost1 = await (await instance).sha1.estimateGas("".padStart(55, 'a'));
+      var cost2 = await (await instance).sha1.estimateGas("".padStart(503, 'a'));
+      var perblock = (1/7) * (cost2 - cost1);
+      var basecost = cost1 - perblock - 21000;
+      console.log("Base cost: " + basecost + " gas. Per 64 byte block: " + perblock + " gas");
     });
 });
