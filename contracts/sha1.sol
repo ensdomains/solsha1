@@ -1,4 +1,4 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.19;
 
 library SHA1 {
     event Debug(bytes32 x);
@@ -46,12 +46,12 @@ library SHA1 {
                 // Expand the 16 32-bit words into 80
                 for { let j := 64 } lt(j, 128) { j := add(j, 12) } {
                     let temp := xor(xor(mload(add(scratch, sub(j, 12))), mload(add(scratch, sub(j, 32)))), xor(mload(add(scratch, sub(j, 56))), mload(add(scratch, sub(j, 64)))))
-                    temp := or(and(mul(temp, 2), 0xFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFE), and(div(temp, 0x80000000), 0x000100000001000000010000000100000001000000010000000100000001))
+                    temp := or(and(mul(temp, 2), 0xFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFE), and(div(temp, 0x80000000), 0x0000000100000001000000010000000100000001000000010000000100000001))
                     mstore(add(scratch, j), temp)
                 }
                 for { let j := 128 } lt(j, 320) { j := add(j, 24) } {
                     let temp := xor(xor(mload(add(scratch, sub(j, 24))), mload(add(scratch, sub(j, 64)))), xor(mload(add(scratch, sub(j, 112))), mload(add(scratch, sub(j, 128)))))
-                    temp := or(and(mul(temp, 4), 0xFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFC), and(div(temp, 0x40000000), 0x000300000003000000030000000300000003000000030000000300000003))
+                    temp := or(and(mul(temp, 4), 0xFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFCFFFFFFFC), and(div(temp, 0x40000000), 0x0000000300000003000000030000000300000003000000030000000300000003))
                     mstore(add(scratch, j), temp)
                 }
 
@@ -87,8 +87,8 @@ library SHA1 {
                         k := 0xCA62C1D6
                     }
                     // temp = (a leftrotate 5) + f + e + k + w[i]
-                    let temp := and(div(x, 0x000000000000080000000000000000000000000000000000000000000000), 0x1F)
-                    temp := or(and(div(x, 0x000000000000000000000800000000000000000000000000000000000000), 0xFFFFFFE0), temp)
+                    let temp := and(div(x, 0x80000000000000000000000000000000000000000000000), 0x1F)
+                    temp := or(and(div(x, 0x800000000000000000000000000000000000000), 0xFFFFFFE0), temp)
                     temp := add(f, temp)
                     temp := add(and(x, 0xFFFFFFFF), temp)
                     temp := add(k, temp)
@@ -99,7 +99,7 @@ library SHA1 {
 
                 h := and(add(h, x), 0xFFFFFFFF00FFFFFFFF00FFFFFFFF00FFFFFFFF00FFFFFFFF)
             }
-            ret := mul(or(or(or(or(and(div(h, 0x100000000), 0xFFFFFFFF00000000000000000000000000000000), and(div(h, 0x001000000), 0xFFFFFFFF000000000000000000000000)), and(div(h, 0x000010000), 0xFFFFFFFF0000000000000000)), and(div(h, 0x000000100), 0xFFFFFFFF00000000)), and(h, 0xFFFFFFFF)), 0x1000000000000000000000000)
+            ret := mul(or(or(or(or(and(div(h, 0x100000000), 0xFFFFFFFF00000000000000000000000000000000), and(div(h, 0x1000000), 0xFFFFFFFF000000000000000000000000)), and(div(h, 0x10000), 0xFFFFFFFF0000000000000000)), and(div(h, 0x100), 0xFFFFFFFF00000000)), and(h, 0xFFFFFFFF)), 0x1000000000000000000000000)
         }
     }
 }
