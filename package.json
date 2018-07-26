@@ -15,5 +15,7 @@
     "lint": "solium --dir ./contracts",
     "prepublishOnly": "truffle compile && truffle networks --clean"
   },
-  "dependencies": {}
+  "dependencies": {
+    "hash-test-vectors": "^1.3.2"
+  }
 }
