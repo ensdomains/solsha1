@@ -1,6 +1,6 @@
 # solsha1
 
-[![License](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
+[![Build Status](https://travis-ci.org/ensdomains/solsha1.svg?branch=master)](https://travis-ci.org/ensdomains/solsha1) [![License](https://img.shields.io/badge/License-BSD--2--Clause-blue.svg)](LICENSE)
 
 Pure-solidity implementation of the SHA1 hash function, heavily optimised using inline-assembly.
 
