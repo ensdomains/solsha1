@@ -1,4 +1,4 @@
-var SHA1Test = artifacts.require("./SHA1Test.sol");
+var SHA1Test = artifacts.require("./mocks/SHA1Test.sol");
 
 var vectors = require('hash-test-vectors')
 
