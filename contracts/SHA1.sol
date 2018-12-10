@@ -1,9 +1,9 @@
-pragma solidity ^0.4.23;
+pragma solidity >=0.5.0;
 
 library SHA1 {
     event Debug(bytes32 x);
 
-    function sha1(bytes data) internal pure returns(bytes20 ret) {
+    function sha1(bytes memory data) internal pure returns(bytes20 ret) {
         assembly {
             // Get a safe scratch location
             let scratch := mload(0x40)
