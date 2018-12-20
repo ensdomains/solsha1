@@ -1,12 +1,12 @@
 {
   "name": "@ensdomains/solsha1",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "requires": true,
   "lockfileVersion": 1,
   "devDependencies": {
     "eth-gas-reporter": "^0.1.2",
     "solium": "^1.0.4",
-    "truffle": "^4.1.12"
+    "truffle": "^5.0.0"
   },
   "scripts": {
     "pretest": "truffle compile",
